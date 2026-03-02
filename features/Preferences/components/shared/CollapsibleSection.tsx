@@ -1,8 +1,9 @@
 'use client';
 import clsx from 'clsx';
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 import { useClick } from '@/shared/hooks/useAudio';
 import { ChevronUp } from 'lucide-react';
+import { useSidebarStickyLayout } from '@/shared/hooks/useSidebarLayout';
 
 interface CollapsibleSectionProps {
   title: ReactNode;
@@ -13,7 +14,7 @@ interface CollapsibleSectionProps {
   className?: string;
   /** Unique ID for session storage persistence */
   storageKey?: string;
-  /** When true, applies a full border to the header instead of just a bottom border */
+  /** When true, applies a full border to the header and stretches it from the sidebar to the viewport right edge */
   fullBorder?: boolean;
 }
 
@@ -75,17 +76,38 @@ const CollapsibleSection = ({
     setIsOpen(prev => !prev);
   };
 
+  // Ref for measuring the button's natural position (used only when fullBorder)
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const stickyLayout = useSidebarStickyLayout(
+    fullBorder
+      ? (buttonRef as React.RefObject<HTMLElement | null>)
+      : { current: null },
+  );
+
+  // Inline styles for the full-bleed sticky header
+  const fullBleedStyle: React.CSSProperties = fullBorder
+    ? {
+        marginLeft: `${stickyLayout.marginLeft}px`,
+        width: stickyLayout.width > 0 ? `${stickyLayout.width}px` : '100vw',
+      }
+    : {};
+
   return (
     <div className={clsx('flex flex-col', styles.gap, className)}>
       <button
+        ref={fullBorder ? buttonRef : undefined}
         className={clsx(
           'group flex w-full flex-row items-center gap-2 text-left',
           'hover:cursor-pointer',
           styles.header,
           fullBorder
-            ? 'border-2 border-(--border-color) px-4 py-3 bg-(--card-color)'
+            ? clsx(
+                'border-b-2 border-(--border-color) bg-(--background-color) px-4 py-3',
+                'sticky top-0 z-30',
+              )
             : styles.border,
         )}
+        style={fullBleedStyle}
         onClick={handleToggle}
       >
         {/* Chevron icon with rotation animation */}
