@@ -192,7 +192,7 @@
       "Kyushu"
     ],
     "correctIndex": 3,
-    "completed": false,
+    "completed": true,
     "issued": false
   },
   {
@@ -206,7 +206,7 @@
       "Mount Tate"
     ],
     "correctIndex": 1,
-    "issued": false,
+    "issued": true,
     "completed": false
   },
   {
